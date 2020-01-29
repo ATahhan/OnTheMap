@@ -10,7 +10,17 @@ import UIKit
 
 class ContainerViewController: UIViewController {
     
-    var locationsData: LocationsData? 
+    var locationsData: LocationsData?
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .fullScreen
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        modalPresentationStyle = .fullScreen
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,7 +50,7 @@ class ContainerViewController: UIViewController {
     
     @objc private func logoutTapped(_ sender: Any) {
         let alertController = UIAlertController(title: "Logout", message: "Are you sure you wnat to logout?", preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { (_) in
+        alertController.addAction(UIAlertAction(title: "Logout", style: .destructive, handler: { (_) in
             API.deleteSession { (err) in
                 guard err == nil else {
                     self.showAlert(title: "Error", message: err!)
@@ -49,23 +59,29 @@ class ContainerViewController: UIViewController {
                 self.dismiss(animated: true, completion: nil)
             }
         }))
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .destructive, handler: nil))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
         present(alertController, animated: true, completion: nil)
     }
     
     private func loadStudentLocations() {
+        let ai = startAnActivityIndicator()
         API.Parser.getStudentLocations { (data) in
+            ai.stopAnimating()
             guard let data = data else {
                 self.showAlert(title: "Error", message: "No internet connection found")
                 return
             }
-            guard data.studentLocations.count > 0 else {
+            guard data.results.count > 0 else {
                 self.showAlert(title: "Error", message: "No pins found")
                 return
             }
             self.locationsData = data
         }
+    }
+    
+    @IBAction func anythign(_ sender: Any) {
+        
     }
 
 }

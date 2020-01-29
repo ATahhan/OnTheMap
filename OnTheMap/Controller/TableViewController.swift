@@ -15,7 +15,7 @@ class TableViewController: ContainerViewController {
     override var locationsData: LocationsData? {
         didSet {
             guard let locationsData = locationsData else { return }
-            locations = locationsData.studentLocations
+            locations = locationsData.results
         }
     }
     var locations: [StudentLocation] = [] {
@@ -64,10 +64,12 @@ extension TableViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let studentLocation = locations[indexPath.row]
-        guard let url = URL(string: studentLocation.mediaURL), UIApplication.shared.canOpenURL(url) else {
-            self.showAlert(title: "Error", message: "Invalid url")
-            return
-        }
+        let mediaURL = studentLocation.mediaURL!
+        let url = URL(string: mediaURL)!
+//        guard let mediaURL = studentLocation.mediaURL, let url = URL(string: mediaURL), UIApplication.shared.canOpenURL(url) else {
+//            self.showAlert(title: "Error", message: "Invalid url")
+//            return
+//        }
         
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }

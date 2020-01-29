@@ -56,7 +56,7 @@ class AddLocationViewController: UIViewController {
     private func pass(_ location: StudentLocation) {
         let geocoder = CLGeocoder()
         let ai = self.startAnActivityIndicator()
-        geocoder.geocodeAddressString(location.mapString) { (placeMarks, _) in
+        geocoder.geocodeAddressString(location.mapString!) { (placeMarks, _) in
             ai.stopAnimating()
             guard let marks = placeMarks else {
                 self.showAlert(title: "Error", message: "Couldn't geocode you're location. Please try again.")

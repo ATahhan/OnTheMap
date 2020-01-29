@@ -24,6 +24,7 @@
 		D62EDC6E21A348D200BCFCE2 /* String+Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62EDC5D21A348D200BCFCE2 /* String+Date.swift */; };
 		D62EDC7221A348E100BCFCE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D62EDC7121A348E100BCFCE2 /* Main.storyboard */; };
 		D62EDC7A21A4033F00BCFCE2 /* UIViewController+UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62EDC7921A4033F00BCFCE2 /* UIViewController+UIResponder.swift */; };
+		D6AE162F21E0B6E100EE9ED4 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AE162E21E0B6E100EE9ED4 /* UserInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		D62EDC5D21A348D200BCFCE2 /* String+Date.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Date.swift"; sourceTree = "<group>"; };
 		D62EDC7121A348E100BCFCE2 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		D62EDC7921A4033F00BCFCE2 /* UIViewController+UIResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+UIResponder.swift"; sourceTree = "<group>"; };
+		D6AE162E21E0B6E100EE9ED4 /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +97,7 @@
 			children = (
 				D62EDC5121A348D200BCFCE2 /* StudentLocation.swift */,
 				D62EDC5021A348D200BCFCE2 /* LocationsData.swift */,
+				D6AE162E21E0B6E100EE9ED4 /* UserInfo.swift */,
 				D62EDC7721A3497800BCFCE2 /* Extensions */,
 				D62EDC7621A3496C00BCFCE2 /* Network */,
 			);
@@ -224,6 +227,7 @@
 				D62EDC6721A348D200BCFCE2 /* StudentTableViewCell.swift in Sources */,
 				D62EDC6121A348D200BCFCE2 /* MapViewController.swift in Sources */,
 				D62EDC6D21A348D200BCFCE2 /* API.swift in Sources */,
+				D6AE162F21E0B6E100EE9ED4 /* UserInfo.swift in Sources */,
 				D62EDC3B21A348BA00BCFCE2 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

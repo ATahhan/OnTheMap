@@ -27,10 +27,10 @@ struct APIConstants {
         static let ORDER = "order"
     }
     
-    private static let MAIN = "https://parse.udacity.com"
-    static let SESSION = "https://www.udacity.com/api/session"
-    static let PUBLIC_USER = "https://www.udacity.com/api/users"
-    static let STUDENT_LOCATION = MAIN + "/parse/classes/StudentLocation"
+    private static let MAIN = "https://onthemap-api.udacity.com/v1"
+    static let SESSION = MAIN + "/session"
+    static let PUBLIC_USER = MAIN + "/users/"
+    static let STUDENT_LOCATION = MAIN + "/StudentLocation"
     
 }
 

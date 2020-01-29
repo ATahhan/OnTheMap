@@ -10,7 +10,7 @@ import Foundation
 
 class API {
     
-    private static var accountId: String?
+    private static var userInfo = UserInfo()
     private static var sessionId: String?
     
     static func postSession(username: String, password: String, completion: @escaping (String?)->Void) {
@@ -37,7 +37,11 @@ class API {
                         let accountDict = dict["account"] as? [String: Any]  {
                         
                         self.sessionId = sessionDict["id"] as? String
-                        self.accountId = accountDict["key"] as? String
+                        self.userInfo.key = accountDict["key"] as? String
+                        
+                        getPublicUserName(completion: { (err) in
+                            
+                        })
                     } else { //Err in parsing data
                         errString = "Couldn't parse response"
                     }
@@ -74,8 +78,9 @@ class API {
             if error != nil { // Handle error…
                 return
             }
-            let newData = data?.subdata(in: 5..<data!.count) /* subset response data! */
-            print(String(data: newData!, encoding: .utf8)!)
+            if (data?.count ?? 0) > 5, let newData = data?.subdata(in: 5..<data!.count) { /* subset response data! */
+                print(String(data: newData, encoding: .utf8)!)
+            }
             DispatchQueue.main.async {
                 completion(nil)
             }
@@ -83,9 +88,9 @@ class API {
         task.resume()
     }
     
-    static func getPublicUserName(completion: @escaping (String?, String?)->Void) {
-        guard let userId = self.accountId, let url = URL(string: "\(APIConstants.PUBLIC_USER)/\(userId)") else {
-            completion(nil, nil)
+    static func getPublicUserName(completion: @escaping (_ error: Error?)->Void) {
+        guard let userId = userInfo.key, let url = URL(string: "\(APIConstants.PUBLIC_USER)\(userId)") else {
+            completion(NSError(domain: "URLError", code: 0, userInfo: nil))
             return
         }
         
@@ -96,22 +101,25 @@ class API {
             var firstName: String?, lastName: String?, nickname: String = ""
             if let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode < 400 { //Request sent succesfully
                 let newData = data?.subdata(in: 5..<data!.count)
-                if let json = try? JSONSerialization.jsonObject(with: newData!, options: [.allowFragments]),
-                    let dict = json as? [String:Any],
-                    let user = dict["user"] as? [String:Any],
-                    let guardDict = user["guard"] as? [String:Any] {
-                    nickname = user["nickname"] as? String ?? ""
-                    firstName = guardDict["first_name"] as? String ?? nickname
-                    lastName = user["last_name"] as? String ?? nickname
+                if let json = try? JSONSerialization.jsonObject(with: newData!, options: []),
+                    let dict = json as? [String:Any] {
+                    
+                    nickname = dict["nickname"] as? String ?? ""
+                    firstName = dict["first_name"] as? String ?? nickname
+                    lastName = dict["last_name"] as? String ?? nickname
+                    
+                    userInfo.firstName = firstName
+                    userInfo.lastName = lastName
                 }
             }
             
             DispatchQueue.main.async {
-                completion(firstName, lastName)
+                completion(nil)
             }
             
         }
         task.resume()
+        
     }
     
     class Parser {
@@ -132,6 +140,11 @@ class API {
                 if let statusCode = (response as? HTTPURLResponse)?.statusCode { //Request sent succesfully
                     if statusCode < 400 { //Response is ok
                         
+                        do {
+                            let data = try JSONDecoder().decode(LocationsData.self, from: data!)
+                        } catch {
+                            print(error)
+                        }
                         if let json = try? JSONSerialization.jsonObject(with: data!, options: []),
                             let dict = json as? [String:Any],
                             let results = dict["results"] as? [Any] {
@@ -147,7 +160,7 @@ class API {
                 }
                 
                 DispatchQueue.main.async {
-                    completion(LocationsData(studentLocations: studentLocations))
+                    completion(LocationsData(results: studentLocations))
                 }
                 
             }
@@ -155,7 +168,7 @@ class API {
         }
         
         static func postLocation(_ location: StudentLocation, completion: @escaping (String?)->Void) {
-            guard let accountId = accountId, let url = URL(string: "\(APIConstants.STUDENT_LOCATION)") else {
+            guard let accountId = userInfo.key, let url = URL(string: "\(APIConstants.STUDENT_LOCATION)") else {
                 completion("Invilid url")
                 return
             }
@@ -165,7 +178,7 @@ class API {
             request.addValue(APIConstants.HeaderValues.PARSE_APP_ID, forHTTPHeaderField: APIConstants.HeaderKeys.PARSE_APP_ID)
             request.addValue(APIConstants.HeaderValues.PARSE_API_KEY, forHTTPHeaderField: APIConstants.HeaderKeys.PARSE_API_KEY)
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = "{\"uniqueKey\": \"\(accountId)\", \"firstName\": \"\(location.firstName ?? "John")\", \"lastName\": \"\(location.lastName ?? "Doe")\",\"mapString\": \"\(location.mapString)\", \"mediaURL\": \"\(location.mediaURL)\",\"latitude\": \(location.latitude), \"longitude\": \(location.longitude)}".data(using: .utf8)
+            request.httpBody = "{\"uniqueKey\": \"\(accountId)\", \"firstName\": \"\("John")\", \"lastName\": \"\("Doe")\",\"mapString\": \"\(location.mapString!)\", \"mediaURL\": \"\(location.mediaURL!)\",\"latitude\": \(location.latitude!), \"longitude\": \(location.longitude!)}".data(using: .utf8)
             let session = URLSession.shared
             let task = session.dataTask(with: request) { data, response, error in
                 var errString: String?
@@ -181,8 +194,42 @@ class API {
                 }
             }
             task.resume()
+            
+            
         }
         
+        static func postLocation(firstName: String, lastName: String, location: String, media: String, lat: Double, long: Double, completion: @escaping (String?)->Void) {
+            
+            var request = URLRequest(url: URL(string: "https://parse.udacity.com/parse/classes/StudentLocation")!)
+            request.httpMethod = "POST"
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = "{\"uniqueKey\": \"\(1111)\", \"firstName\": \"\(firstName)\", \"lastName\": \"\(lastName)\",\"mapString\": \"\(location)\", \"mediaURL\": \"\(media)\",\"latitude\": \"\(lat)\", \"longitude\": \"\(long)\"}".data(using: .utf8)
+                
+                let session = URLSession.shared
+                
+                let task = session.dataTask(with: request) { data, response, error in
+                    var err: String?
+                    if let status = (response as? HTTPURLResponse)?.statusCode {
+                        if status >= 200 && status < 300 {
+                            print ("Data was added successfully")
+                        }
+                        else {
+                            err = "Couldn’t parse response"
+                        }
+                        
+                    } else {
+                        err = "Check your internet connection"
+                    }
+                    DispatchQueue.main.async {
+                        completion(err)
+                    }
+                    
+                }
+                task.resume()
+                
+                
+            }
     }
     
 }

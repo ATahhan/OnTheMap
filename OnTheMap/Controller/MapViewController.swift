@@ -38,8 +38,46 @@ class MapViewController: ContainerViewController, MKMapViewDelegate {
         
     }
     
+//    func getLcoations() {
+//        guard let url = URL(string: "\(APIConstants.STUDENT_LOCATION)?\(APIConstants.ParameterKeys.LIMIT)=\(limit)&\(APIConstants.ParameterKeys.SKIP)=\(skip)&\(APIConstants.ParameterKeys.ORDER)=-\(orderBy.rawValue)") else {
+//            completion(nil)
+//            return
+//        }
+//        
+//        var request = URLRequest(url: url)
+//        request.httpMethod = HTTPMethod.get.rawValue
+//        request.addValue(APIConstants.HeaderValues.PARSE_APP_ID, forHTTPHeaderField: APIConstants.HeaderKeys.PARSE_APP_ID)
+//        request.addValue(APIConstants.HeaderValues.PARSE_API_KEY, forHTTPHeaderField: APIConstants.HeaderKeys.PARSE_API_KEY)
+//        let session = URLSession.shared
+//        let task = session.dataTask(with: request) { data, response, error in
+//            var studentLocations: [StudentLocation] = []
+//            if let statusCode = (response as? HTTPURLResponse)?.statusCode { //Request sent succesfully
+//                if statusCode < 400 { //Response is ok
+//                    
+//                    if let json = try? JSONSerialization.jsonObject(with: data!, options: []),
+//                        let dict = json as? [String:Any],
+//                        let results = dict["results"] as? [Any] {
+//                        
+//                        for location in results {
+//                            let data = try! JSONSerialization.data(withJSONObject: location)
+//                            let studentLocation = try! JSONDecoder().decode(StudentLocation.self, from: data)
+//                            studentLocations.append(studentLocation)
+//                        }
+//                        
+//                    }
+//                }
+//            }
+//            
+//            DispatchQueue.main.async {
+//                self.locationsData = LocationsData(studentLocations: studentLocations)
+//            }
+//            
+//        }
+//        task.resume()
+//    }
+    
     func updatePins() {
-        guard let locations = locationsData?.studentLocations else { return }
+        guard let locations = locationsData?.results else { return }
         
         // We will create an MKPointAnnotation for each dictionary in "locations". The
         // point annotations will be stored in this array, and then provided to the map view.
@@ -52,8 +90,9 @@ class MapViewController: ContainerViewController, MKMapViewDelegate {
             
             // Notice that the float values are being used to create CLLocationDegree values.
             // This is a version of the Double type.
-            let lat = CLLocationDegrees(location.latitude)
-            let long = CLLocationDegrees(location.longitude)
+            guard let locationLat = location.latitude, let locationLong = location.longitude else { continue }
+            let lat = CLLocationDegrees(locationLat)
+            let long = CLLocationDegrees(locationLong)
             
             // The lat and long are used to create a CLLocationCoordinates2D instance.
             let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
@@ -70,9 +109,11 @@ class MapViewController: ContainerViewController, MKMapViewDelegate {
             
             // Finally we place the annotation in an array of annotations.
             annotations.append(annotation)
+            
         }
         
         // When the array is complete, we add the annotations to the map.
+        self.mapView.removeAnnotations(self.mapView.annotations)
         self.mapView.addAnnotations(annotations)
     }
     

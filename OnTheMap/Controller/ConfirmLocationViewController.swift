@@ -38,8 +38,8 @@ class ConfirmLocationViewController: UIViewController {
     private func setupMap() {
         guard let location = location else { return }
         
-        let lat = CLLocationDegrees(location.latitude)
-        let long = CLLocationDegrees(location.longitude)
+        let lat = CLLocationDegrees(location.latitude!)
+        let long = CLLocationDegrees(location.longitude!)
         
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
         
